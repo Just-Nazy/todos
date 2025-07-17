@@ -1,4 +1,4 @@
-name: Build Main Branch
+name: Build & Deploy on Main
 
 on:
   push:
@@ -11,12 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      MY_ENV_VAR: value
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      REGISTRY: docker.io
+      IMAGE_NAME: monapp
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout du code
+        uses: actions/checkout@v3
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -24,47 +27,72 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Scan de secrets
-        run: |
-          echo "Todo : Scan de secrets"
-        shell: bash
+      - name: Scan de secrets avec Gitleaks
+        uses: zricethezav/gitleaks-action@v2
+        continue-on-error: false
 
-      - name: Scan des vulnérabilités
-        run: |
-          echo "Todo : Scan des vulnérabilités"
-        shell: bash
+      - name: Scan des vulnérabilités avec OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "todos"
+          path: "./"
+          format: "HTML"
+          out: "dependency-check-report"
 
-      - name: Unit Tests
+      - name: Compilation & tests
         run: |
-          mvn test -Put -Pit
-        shell: bash
+          mvn clean verify
 
-      - name: Quality Gate
-        run: |
-          echo "Todo : Quality Gate"
-        shell: bash
+      - name: Analyse SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: your-org_todos
+          SONAR_ORGANIZATION: your-org
 
-      - name: Check Quality Gate
-        run: |
-          echo "Todo : Check Quality Gate"
-        shell: bash
+      - name: Vérification du Quality Gate
+        uses: SonarSource/sonarcloud-quality-gate-action@master
+        with:
+          scanTimeout: 300 # 5 min
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Release
+      - name:  Lire et incrémenter la version
+        id: versioning
         run: |
-          echo "Todo : Release"
-        shell: bash
+          echo "Version actuelle : $(cat version.txt)"
+          old_version=$(cat version.txt)
+          major=$(echo $old_version | cut -d. -f1)
+          minor=$(echo $old_version | cut -d. -f2)
+          new_version="$major.$((minor+1))"
+          echo $new_version > version.txt
+          echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
 
-      - name: Build and Publish to Docker
+      - name: Commit nouvelle version & tag Git
         run: |
-          echo "Todo : Build and Publish to Docker"
-        shell: bash
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add version.txt
+          git commit -m " Bump version to $NEW_VERSION"
+          git tag "v$NEW_VERSION"
+          git push origin main --tags
 
-      - name: Déploiement
+      - name: Connexion à Docker Hub
         run: |
-          echo "Todo : Déploiement "
-        shell: bash
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: DAST
+      - name:  Build Docker image
         run: |
-          echo "Todo : DAST"
-        shell: bash
+          docker build -t $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$NEW_VERSION .
+          docker tag $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$NEW_VERSION $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+
+      - name:  Push Docker images
+        run: |
+          docker push $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$NEW_VERSION
+          docker push $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+
+      - name:  Déploiement (optionnel - à adapter selon infra)
+        run: |
+          echo "Déploiement automatisé ici (Kubernetes, SSH, etc)"

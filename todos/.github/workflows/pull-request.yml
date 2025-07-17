@@ -1,49 +1,58 @@
-name: Pull Request
+name: Pull Request Quality Check
+
 on:
-  push:
+  pull_request:
     branches:
       - 'DIC1-*'
       - 'IS-*'
 
 jobs:
-  build:
+  quality-check:
     runs-on: ubuntu-latest
 
     env:
-      MY_ENV_VAR: value
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name:  Checkout du code
+        uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Java
+      - name:  Setup Java
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Scan de secrets
-        run: |
-          echo "Todo : Scan de secrets"
-        shell: bash
+      - name:  Scan de secrets avec Gitleaks
+        uses: zricethezav/gitleaks-action@v2
+        continue-on-error: false
 
-      - name: Scan des vulnérabilités
-        run: |
-          echo "Todo : Scan des vulnérabilités"
-        shell: bash
+      - name:  Scan des vulnérabilités avec OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "todos"
+          path: "./"
+          format: "HTML"
+          out: "dependency-check-report"
 
-      - name: Unit Tests
-        run: |
-          mvn test -Put -Pit
-        shell: bash
+      - name:  Tests unitaires
+        run: mvn clean test
 
-      - name: Quality Gate
-        run: |
-          echo "Todo : Quality Gate"
-        shell: bash
+      - name:  Analyse SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: your-org_todos
+          SONAR_ORGANIZATION: your-org
 
-      - name: Check Quality Gate
-        run: |
-          echo "Todo : Check Quality Gate"
-        shell: bash
+      - name:  Vérification du Quality Gate
+        uses: SonarSource/sonarcloud-quality-gate-action@master
+        with:
+          scanTimeout: 300
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
