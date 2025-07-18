@@ -3,7 +3,6 @@ name: Build & Deploy on Main
 on:
   push:
     branches:
-      - main
       - master
 
 jobs:
@@ -49,7 +48,7 @@ jobs:
           projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: randomtodos
+          SONAR_PROJECT_KEY: keytodos
           SONAR_ORGANIZATION: Just-Nazy
 
       - name: Vérification du Quality Gate
