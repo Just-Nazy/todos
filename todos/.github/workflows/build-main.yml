@@ -1,9 +1,10 @@
-name: Build & Deploy on Master
+name: Build & Deploy on Master/Main
 
 on:
   push:
     branches:
       - master
+      - main
 
 jobs:
   build:
@@ -76,7 +77,7 @@ jobs:
           git add version.txt
           git commit -m " Bump version to $NEW_VERSION"
           git tag "v$NEW_VERSION"
-          git push origin main --tags
+          git push origin master --tags
 
       - name: Connexion à Docker Hub
         run: |

@@ -19,7 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import sn.ept.git.seminaire.cicd.data.TestData;
 import sn.ept.git.seminaire.cicd.entities.Tag;
-import sn.ept.git.seminaire.cicd.exceptions.models.TagDTO;
+import sn.ept.git.seminaire.cicd.models.TagDTO;
 import sn.ept.git.seminaire.cicd.repositories.TagRepository;
 
 import java.util.List;
