@@ -69,15 +69,14 @@ jobs:
       - name:  Tests unitaires
         run: mvn clean test
 
-      - name:  Analyse SonarCloud
+      - name: Analyse SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=keytodos
+            -Dsonar.organization=Just-Nazy
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: keytodos
-          SONAR_ORGANIZATION: Just-Nazy
-
       - name:  Vérification du Quality Gate
         uses: SonarSource/sonarcloud-quality-gate-action@master
         with:
