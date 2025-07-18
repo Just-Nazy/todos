@@ -54,7 +54,7 @@ jobs:
       - name: Vérification du Quality Gate
         uses: SonarSource/sonarcloud-quality-gate-action@master
         with:
-          scanTimeout: 300 # 5 min
+          scanTimeout: 300
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -94,4 +94,4 @@ jobs:
 
       - name:  Déploiement
         run: |
-          echo "Déploiement automatisé "
+          echo "Déploiement "
