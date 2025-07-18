@@ -1,5 +1,0 @@
-
-GET http://localhost:8080/cicd/api/todos/{your_id_here}/complete
-Content-Type: application/json
-
-
