@@ -60,10 +60,6 @@ local.properties
 .loadpath
 .factorypath
 /src/main/resources/rebel.xml
-<<<<<<< HEAD
-=======
-.idea/
->>>>>>> 99ed176ea72a2d3d6fb3dff1d37e9c6dab6aa895
 
 # External tool builders
 .externalToolBuilders/**
