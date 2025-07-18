@@ -1,9 +1,8 @@
-name: Build & Deploy on Main
+name: Build & Deploy on Master
 
 on:
   push:
     branches:
-      - main
       - master
 
 jobs:
@@ -49,8 +48,8 @@ jobs:
           projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: your-org_todos
-          SONAR_ORGANIZATION: your-org
+          SONAR_PROJECT_KEY: keytodos
+          SONAR_ORGANIZATION: Just-Nazy
 
       - name: Vérification du Quality Gate
         uses: SonarSource/sonarcloud-quality-gate-action@master
@@ -93,6 +92,6 @@ jobs:
           docker push $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$NEW_VERSION
           docker push $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
 
-      - name:  Déploiement (optionnel - à adapter selon infra)
+      - name:  Déploiement
         run: |
-          echo "Déploiement automatisé ici (Kubernetes, SSH, etc)"
+          echo "Déploiement automatisé "
