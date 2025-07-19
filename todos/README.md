@@ -39,3 +39,7 @@ Active aussi les règles Alpha, qui sont expérimentales mais peuvent détecter 
 ## Contact
 
 Dr. SENE - <a href="mailto:senei@ept.sn">senei@ept.sn</a>
+
+#Test pipeline PR
+#Test 2 pipeline PR
+#Test 3
