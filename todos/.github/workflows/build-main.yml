@@ -41,7 +41,7 @@ jobs:
 
       - name: Compilation & tests
         run: |
-          mvn clean verify
+          mvnd clean verify
 
       - name: Analyse SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
@@ -88,11 +88,9 @@ jobs:
           docker build -t $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$NEW_VERSION .
           docker tag $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$NEW_VERSION $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
 
-      - name:  Push Docker images
+      - name:  Push Docker images 
         run: |
           docker push $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$NEW_VERSION
           docker push $REGISTRY/${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
 
-      - name:  Déploiement
-        run: |
-          echo "Déploiement "
+

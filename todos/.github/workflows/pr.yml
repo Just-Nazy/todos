@@ -67,7 +67,7 @@ jobs:
           out: "dependency-check-report"
 
       - name:  Tests unitaires
-        run: mvn clean test
+        run: mvnd clean test
 
       - name:  Analyse SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
