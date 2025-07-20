@@ -31,8 +31,8 @@ name: Pull Request Quality Check
 on:
   pull_request:
     branches:
-      - 'DIC1-*'
-      - 'IS-*'
+      - main
+      - master
 
 jobs:
   quality-check:
